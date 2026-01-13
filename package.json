@@ -19,6 +19,9 @@
   },
   "homepage": "https://github.com/MATTY2401/Progetto-cloud#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "express-validator": "^7.3.1"
   }
 }

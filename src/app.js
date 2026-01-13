@@ -1,13 +1,16 @@
+
 const express = require('express');
+const router = express.Router()
+
+const summoner = require("./routes/summoner.js")
+
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.get('/', (req, res) => {
-  res.send('Hello from Node.js!');
-});
+app.use('/summoner', summoner)
 
-app.get('/api/data', (req, res) => {
-  res.json({ message: 'This is data from the API' });
+app.get('/', (req, res) => {
+  res.send("home page")
 });
 
 app.listen(port, () => {
