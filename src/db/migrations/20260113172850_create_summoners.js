@@ -3,9 +3,9 @@
  * @returns { Promise<void> }
  */
 exports.up = function(knex) {
-  if( knex.schema.hasTable('riot_users'))
+  if( knex.schema.hasTable('summoners'))
     {
-        return knex.schema.createTable('riot_users', (table) => {
+        return knex.schema.createTable('summoners', (table) => {
             table.text('user_id').notNullable().primary();
             table.text('nome').notNullable();
             table.text('soloq_rank').notNullable();

@@ -3,9 +3,9 @@
  * @returns { Promise<void> }
  */
 exports.up = function(knex) {
-    if( knex.schema.hasTable('summoners'))
+    if( knex.schema.hasTable('accounts'))
     {
-        return knex.schema.createTable('summoners', (table) => {
+        return knex.schema.createTable('accounts', (table) => {
             table.text('username').notNullable().primary();
             table.text('google_oauth').unique();
             table.text('riot_oauth').unique();
