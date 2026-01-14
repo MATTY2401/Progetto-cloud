@@ -5,7 +5,7 @@
 exports.up = async function(knex) {
     // Creazione della funzione all'interno dello schema lolbile
     await knex.raw(`
-       CREATE OR REPLACE FUNCTION lolbile.check_validity_games(
+       CREATE OR REPLACE FUNCTION lolbile.check_games(
             "array" text[])
             RETURNS boolean
             LANGUAGE 'plpgsql'
@@ -30,7 +30,7 @@ exports.up = async function(knex) {
     `);
 
     // Assegnazione del proprietario (owner)
-    await knex.raw('ALTER FUNCTION lolbile.check_validity_games(text[]) OWNER TO admin;');
+    await knex.raw('ALTER FUNCTION lolbile.check_games(text[]) OWNER TO admin;');
 }
 
 /**

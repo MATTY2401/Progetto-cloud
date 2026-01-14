@@ -13,7 +13,7 @@ exports.up = function(knex) {
             table.specificType('partite', 'text ARRAY').notNullable();
             table.timestamps(true,true)
             table.check('lolbile.check_ten_items(games)', [], 'games_matches_count_check');
-            table.check('lolbile.check_validity_games(games)', [], 'games_matches_validity_check');
+            table.check('lolbile.check_games(games)', [], 'games_matches_check');
         })
     }
 };
