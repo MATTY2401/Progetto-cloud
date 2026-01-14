@@ -10,10 +10,8 @@ exports.up = function(knex) {
             table.text('nome').notNullable();
             table.text('soloq_rank').notNullable();
             table.text('flex_rank').notNullable();
-            table.specificType('partite', 'text ARRAY').notNullable();
+            table.specificType('games', 'text ARRAY').notNullable();
             table.timestamps(true,true)
-            table.check('lolbile.check_ten_items(games)', [], 'games_matches_count_check');
-            table.check('lolbile.check_games(games)', [], 'games_matches_check');
         })
     }
 };

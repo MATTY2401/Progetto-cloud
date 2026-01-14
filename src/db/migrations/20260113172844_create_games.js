@@ -13,8 +13,6 @@ exports.up = function(knex) {
             table.date('date').notNullable();
             table.boolean('winner');
             table.timestamps(true,true);
-            table.check('lolbile.check_five_items(team_1)', [], 'games_team_1_count_check');
-            table.check('lolbile.check_five_items(team_2)', [], 'games_team_2_count_check');
         })
     }
 };

@@ -4,33 +4,40 @@
  */
 exports.up = async function(knex) {
     // Creazione della funzione all'interno dello schema lolbile
-    await knex.raw(`
-       CREATE OR REPLACE FUNCTION lolbile.check_games(
-            "array" text[])
-            RETURNS boolean
-            LANGUAGE 'plpgsql'
-            COST 100
-            VOLATILE PARALLEL UNSAFE
-        AS $BODY$
-        BEGIN
-           
-            IF "array" IS NULL THEN
-                RETURN TRUE;
-            END IF;
+    if( knex.schema.hasTable('check_ten_items'))
+    { 
+        await knex.raw(`
 
-            RETURN NOT EXISTS (
-                SELECT *
-                FROM UNNEST("array") AS ref(id)       
-                LEFT JOIN lolbile.games ON games.id = ref.id 
-                WHERE games.id IS NULL    
-                AND ref.id IS NOT NULL            
-            );
-        END;
-        $BODY$;
-    `);
+            -- FUNCTION: check_games(text[])
 
-    // Assegnazione del proprietario (owner)
-    await knex.raw('ALTER FUNCTION lolbile.check_games(text[]) OWNER TO admin;');
+            -- DROP FUNCTION IF EXISTS check_games(text[]);
+        CREATE OR REPLACE FUNCTION check_games(
+                "array" text[])
+                RETURNS boolean
+                LANGUAGE 'plpgsql'
+                COST 100
+                VOLATILE PARALLEL UNSAFE
+            AS $BODY$
+            BEGIN
+            
+                IF "array" IS NULL THEN
+                    RETURN TRUE;
+                END IF;
+
+                RETURN NOT EXISTS (
+                    SELECT *
+                    FROM UNNEST("array") AS ref(id)       
+                    LEFT JOIN games ON games.id = ref.id 
+                    WHERE games.id IS NULL    
+                    AND ref.id IS NOT NULL            
+                );
+            END;
+            $BODY$;
+        `);
+
+        // Assegnazione del proprietario (owner)
+        await knex.raw('ALTER FUNCTION check_games(text[]) OWNER TO admin;');
+    }
 }
 
 /**
