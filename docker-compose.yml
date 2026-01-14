@@ -9,23 +9,32 @@ services:
     ## add to the env the database to connect to and the various args such as user, creation of database if it doesn't exists probably better in the image
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: secret #switch this to use files, better secrecy 
-      POSTGRES_DB: mydatabase
+      POSTGRES_DB: lolbile
     ports:
       - 5432:5432
     networks:
       - database
       - pgadmin_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d lolbile"]
+      interval: 2s
+      timeout: 2s
+      retries: 5
   
   pgadmin:
     image: dpage/pgadmin4:9.10
     container_name: pgadmin4
+    volumes:
+      - ./servers.json:/pgadmin4/servers.json:ro
+      - pgadmin-data:/var/lib/pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - 5252:80
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - pgadmin_net
 
@@ -50,6 +59,9 @@ services:
       NODE_ENV: production
       PORT: 3000
     restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - database
       - frontend
@@ -66,3 +78,5 @@ networks:
 
 volumes:
   db-data:
+
+  pgadmin-data:

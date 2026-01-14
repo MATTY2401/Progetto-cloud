@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router()
 
-const summoner = require("./routes/summoner.js")
+const summoner = require("./routes/summoners.js")
 
 const app = express();
 const port = process.env.PORT || 3000;

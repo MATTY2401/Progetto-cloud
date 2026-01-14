@@ -1,0 +1,16 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "App Server",
+      "Group": "Servers",
+      "Port": 5432,
+      "Host": "postgres",  
+      "MaintenanceDB": "lolbile",  
+      "Username": "admin", 
+      "Password": "secret",
+      "SSLMode": "prefer",
+      "ConnectNow": true,
+      "PassFile": "/pgadmin4/.pgpass"
+    }
+  }
+}

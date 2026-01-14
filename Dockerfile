@@ -4,10 +4,13 @@ WORKDIR /usr/src/app
 
 COPY package*.json /
 
-RUN npm ci --only=production
+RUN npm ci
 
 COPY src .
 
-EXPOSE 3000
+COPY entrypoint.sh ./
 
+RUN chmod +x entrypoint.sh
+
+ENTRYPOINT [ "./entrypoint.sh" ]
 CMD ["node", "app.js"]
