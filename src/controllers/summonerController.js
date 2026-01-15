@@ -1,5 +1,7 @@
 const Summoner = require('../models/summoner')
+const Helper = require('./helper/helper')
 const apiServer = require('../middleware/apiServer')
+
 
 // Display Summoner page for a specific Author.
 exports.summoner_detail = async (req, res, next) => {
@@ -13,8 +15,10 @@ exports.summoner_detail = async (req, res, next) => {
     {
         console.log('No such summoner');
         summoner = await summoner_create(RiotId, Tag);
+        var games_array = await Helper.add_games_helper(summoner.user_id)
+        summoner = await Summoner.query().findById(summoner.user_id).patch({games: games_array}).returning('*');
     }
-    summoner = summoner[0].to_JSON();
+    summoner = summoner.to_JSON();
     console.log(summoner);
     res.json(summoner);
 
@@ -66,7 +70,7 @@ summoner_create = async (RiotId, Tag) => {
     }
   }
   console.log("Inserting into database")
-  return new_summoner = await Summoner.query()
+  const summoner = await Summoner.query()
                         .insert({
                           user_id: puuid,
                           nome: riot_full_id,
@@ -76,5 +80,6 @@ summoner_create = async (RiotId, Tag) => {
                           summoner_level: summoner_lvl,
                           profile_icon_id: profile_icon_id,
                         }).returning('*');
+  return summoner;
 };
 
