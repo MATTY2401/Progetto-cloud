@@ -4,7 +4,7 @@
  */
 exports.up = async function(knex) {
     // Creazione della funzione all'interno dello schema lolbile
-    if( knex.schema.hasTable('check_ten_items'))
+    if( knex.schema.hasTable('check_games'))
     { 
         await knex.raw(`
 
@@ -21,14 +21,18 @@ exports.up = async function(knex) {
             BEGIN
             
                 IF "array" IS NULL THEN
-                    RETURN TRUE;
+                    RETURN FALSE;
+                END IF;
+
+                IF array_length("array", 1) = 0 THEN
+                    return TRUE;
                 END IF;
 
                 RETURN NOT EXISTS (
                     SELECT *
                     FROM UNNEST("array") AS ref(id)       
-                    LEFT JOIN games ON games.id = ref.id 
-                    WHERE games.id IS NULL    
+                    LEFT JOIN games ON games.game_id = ref.id 
+                    WHERE games.game_id IS NULL    
                     AND ref.id IS NOT NULL            
                 );
             END;

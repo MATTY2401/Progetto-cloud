@@ -8,9 +8,9 @@ exports.up = function(knex) {
         return knex.schema.createTable('summoners', (table) => {
             table.text('user_id').notNullable().primary();
             table.text('nome').notNullable();
-            table.text('soloq_rank');
-            table.text('flex_rank');
-            table.specificType('games', 'text ARRAY');
+            table.text('soloq_rank').notNullable();
+            table.text('flex_rank').notNullable();
+            table.specificType('games', 'text ARRAY').notNullable();
             table.timestamps(true,true)
         })
     }
