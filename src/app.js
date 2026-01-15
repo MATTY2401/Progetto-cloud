@@ -1,13 +1,19 @@
 
 const express = require('express');
-const router = express.Router()
+const router = express.Router();
 
-const summoner = require("./routes/summoners.js")
+const dbSetup = require('./db/db-setup');
+
+const summonerRouter = require("./routes/summoners.js");
+const apiRouter = require("./routes/apis.js");
+
+dbSetup();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use('/summoner', summoner)
+app.use('/api', apiRouter);
+app.use('/summoner', summonerRouter);
 
 app.get('/', (req, res) => {
   res.send("home page")
