@@ -22,7 +22,7 @@ exports.champion_rotation = async (req, res, next) => {
     champion_list.forEach(champion => {
         champion_array.push(champion.champion_id);
     });
-    res.json(champion_array);
+    res.json({response_code: 200, data: champion_array});
 
 };
 
