@@ -12,7 +12,6 @@ async function get_riot_account_info(RiotId, Tag){
         .then(response => {
             if(response.status == 200) {
                 console.log('Riot api call for account_info succeded');
-                console.log(response.data);
                 res = response.data;
             }
         })
@@ -38,7 +37,6 @@ async function get_summoner_info(Puuid){
         .then(response => {
             if(response.status == 200) {
                 console.log('Riot api call succeded')
-                console.log(response.data)
                 res = response.data
             }
         })
@@ -68,7 +66,6 @@ async function get_summoner_rank_info(Puuid, region="euw1"){
         .then(response => {
             if(response.status == 200) {
                 console.log('Riot api call succeded')
-                console.log(response.data)
                 res = response.data;
             }
         })
@@ -95,7 +92,6 @@ async function get_games_id(Puuid){
         .then(response => {
             if(response.status == 200) {
                 console.log('Riot api call for games_id succeded');
-                console.log(response.data);
                 res = response.data;
             }
         })
@@ -140,10 +136,38 @@ async function get_game_info(game_id){
     return res;
 }
 
+async function get_free_champions() {
+    var res;
+    var url = `https://euw1.api.riotgames.com/lol/platform/v3/champion-rotations`  
+    await axios.get(url,{headers:{'X-Riot-Token': api_key}}
+        )
+        .then(response => {
+            if(response.status == 200) {
+                console.log('Riot api call for free champion rotation succeded');
+                res = response.data;
+            }
+        })
+        .catch(error => {
+            if (error.response) {
+            console.log(error.response.data);
+            console.log(error.response.status);
+            console.log(error.response.headers);
+            } else if (error.request) {
+            console.log(error.request);
+            } else {
+            console.log('Error', error.message);
+            }
+            res = error;
+    });
+    return res;
+    
+}
+
 module.exports = {
     get_summoner_rank_info,
     get_summoner_info,
     get_riot_account_info,
     get_summoner_region,
     get_games_id,
-    get_game_info}
+    get_game_info,
+    get_free_champions}

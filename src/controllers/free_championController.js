@@ -1,0 +1,47 @@
+const cron = require('cron');
+const Free_champion = require('../models/free_champion')
+const apiServer = require('../middleware/apiServer')
+
+const job = cron.CronJob.from({
+        cronTime: '0 12 * * TUE', //execute this job every tuesday at 12
+        onTick: update_free_champions,
+        start: true,
+        runOnInit: true,
+        waitForCompletion: true
+});
+
+
+exports.champion_rotation = async (req, res, next) => {
+    //put a check for the week
+    /*
+        probably better to take first entry of the table check the creation date and if the
+        next tuesday has been found update and return otherwise just return the id of all the entries
+    */
+    const champion_list = await Free_champion.query().select('champion_id');
+    var champion_array = [];
+    champion_list.forEach(champion => {
+        champion_array.push(champion.champion_id);
+    });
+    res.json(champion_array);
+
+};
+
+
+
+async function update_free_champions() {
+    console.log('updating free champion rotation');
+    /*
+    const champion_list = await apiServer.get_free_champions();
+    //delete the table
+    console.log(champion_list.freeChampionIds);
+    console.log('deleting old champs');
+    await Free_champion.query().delete();
+    //update the table
+    console.log('inserting new champs');
+    await Promise.all(champion_list.freeChampionIds.map(async (champion) => {
+        await Free_champion.query().insert({
+            champion_id: champion,
+        });
+    }))
+    */
+}
