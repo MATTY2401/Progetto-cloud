@@ -20,9 +20,47 @@ exports.summoner_detail = async (req, res, next) => {
     }
     summoner = summoner.to_JSON();
     console.log(summoner);
-    res.json(summoner);
+    res.json({response_code: 200, data: summoner});
 
 };
+
+exports.summoner_leaderboard = async (req, res, next) => {
+  const type = req.params.type;
+  console.log(`value of type is : ${type}`);
+  var queue;
+  if(type === undefined)
+  {
+    queue = "RANKED_SOLO_5x5";
+  }
+  else
+  {
+    switch (type) 
+    {
+      case "soloq":
+        queue = "RANKED_SOLO_5x5";
+        break;
+      case "flex":
+        queue = "RANKED_FLEX_SR";
+        break;
+      default:
+        queue = "NOT_FOUND";
+        break;
+    }
+  }
+  if (queue == "NOT_FOUND")
+  {
+    res.json({response_code: 404, data: {}}); // modify all res information to be like this
+  }
+
+  const leaderboard = await apiServer.get_leaderboard(queue);
+  var response = [];
+  await Promise.all(leaderboard.entries.slice(0,20).map(async (entry) => {
+    const riot_account_info = await apiServer.get_riot_account_info_by_puuid(entry.puuid);
+    response.push(riot_account_info.gameName.concat('#', riot_account_info.tagLine));
+  }))
+  res.json({response_code: 200, data: response});
+}
+
 
 // Display Summoner create form on GET.
 exports.summoner_create_get = async (req, res, next) => {
@@ -83,3 +121,36 @@ summoner_create = async (RiotId, Tag) => {
   return summoner;
 };
 
+summoner_create_by_puuid = async (puuid) => {
+  //api call
+  const summoner_info = await apiServer.get_summoner_info_by_puuid(puuid);
+  const summoner_lvl = summoner_info.summonerLevel;
+  const profile_icon_id = summoner_info.profileIconId;
+  const ranked_info = await apiServer.get_summoner_rank_info(puuid);
+  var sq_rank = 'unranked';
+  var f_rank = 'unranked';
+  console.log("retrieving rank")
+  for(let i = 0; i < ranked_info.length; i++)
+  {
+    if (ranked_info[i].queueType == "RANKED_SOLO_5x5")
+    {
+      sq_rank = (ranked_info[i].tier).concat(" ",ranked_info[i].rank);
+    }
+    else if(ranked_info[i].queueType == "RANKED_FLEX_SR")
+    {
+      f_rank = (ranked_info[i].tier).concat(" ",ranked_info[i].rank);
+    }
+  }
+  console.log("Inserting into database")
+  const summoner = await Summoner.query()
+                        .insert({
+                          user_id: puuid,
+                          nome: riot_full_id,
+                          soloq_rank: sq_rank,
+                          flex_rank: f_rank,
+                          games: [],
+                          summoner_level: summoner_lvl,
+                          profile_icon_id: profile_icon_id,
+                        }).returning('*');
+  return summoner;
+};

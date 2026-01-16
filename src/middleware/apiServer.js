@@ -163,6 +163,57 @@ async function get_free_champions() {
     
 }
 
+async function get_leaderboard(queue_type){
+    var res;
+    var url = `https://euw1.api.riotgames.com/lol/league/v4/challengerleagues/by-queue/${queue_type}`  
+    await axios.get(url,{headers:{'X-Riot-Token': api_key}}
+        )
+        .then(response => {
+            if(response.status == 200) {
+                console.log(`Riot api call for ${queue_type} leaderboard succeded`);
+                res = response.data;
+            }
+        })
+        .catch(error => {
+            if (error.response) {
+            console.log(error.response.data);
+            console.log(error.response.status);
+            console.log(error.response.headers);
+            } else if (error.request) {
+            console.log(error.request);
+            } else {
+            console.log('Error', error.message);
+            }
+            res = error;
+    });
+    return res;
+}
+
+async function get_riot_account_info_by_puuid(puuid){
+    var res;
+    var url = `https://europe.api.riotgames.com/riot/account/v1/accounts/by-puuid/${puuid}`  
+    await axios.get(url,{headers:{'X-Riot-Token': api_key}}
+        )
+        .then(response => {
+            if(response.status == 200) {
+                res = response.data;
+            }
+        })
+        .catch(error => {
+            if (error.response) {
+            console.log(error.response.data);
+            console.log(error.response.status);
+            console.log(error.response.headers);
+            } else if (error.request) {
+            console.log(error.request);
+            } else {
+            console.log('Error', error.message);
+            }
+            res = error;
+    });
+    return res;
+}
+
 module.exports = {
     get_summoner_rank_info,
     get_summoner_info,
@@ -170,4 +221,6 @@ module.exports = {
     get_summoner_region,
     get_games_id,
     get_game_info,
-    get_free_champions}
+    get_free_champions,
+    get_leaderboard,
+    get_riot_account_info_by_puuid}
