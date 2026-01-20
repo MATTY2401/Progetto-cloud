@@ -53,7 +53,6 @@ services:
       - frontend
   
   app:
-    container_name: app
     build: .
     environment:
       NODE_ENV: production
@@ -65,6 +64,8 @@ services:
     networks:
       - database
       - frontend
+    deploy:
+      replicas: 5
 
 networks:
   database:
