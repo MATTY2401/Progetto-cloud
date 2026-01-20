@@ -17,8 +17,9 @@ exports.summoner_detail = async (req, res, next) => {
         summoner = await summoner_create(RiotId, Tag);
         var games_array = await Helper.add_games_helper(summoner.user_id)
         summoner = await Summoner.query().findById(summoner.user_id).patch({games: games_array}).returning('*');
+        
     }
-    summoner = summoner.to_JSON();
+    summoner = summoner[0].to_JSON();
     console.log(summoner);
     res.json({response_code: 200, data: summoner});
 
