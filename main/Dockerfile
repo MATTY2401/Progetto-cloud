@@ -4,11 +4,9 @@ WORKDIR /usr/src/app
 
 COPY package*.json /
 
-RUN npm ci
+RUN npm ci --loglevel=error
 
-COPY src .
-
-COPY entrypoint.sh ./
+COPY . .
 
 RUN chmod +x entrypoint.sh
 

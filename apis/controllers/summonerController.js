@@ -1,8 +1,47 @@
-require('dotenv').config();
+//Get specific Summoner informations
+exports.summoner_detail = async (req, res, next) => {
+    const RiotId = req.params.RiotId;
+    const Tag = req.params.Tag;
+    var sq_rank = 'unranked';
+    var f_rank = 'unranked';
+    const riot_full_id = RiotId.concat("#",Tag);
+    const account_info = await get_riot_account_info(RiotId, Tag);
+    if(account_info == {})
+    {
+        res.json({response_code: 404, data: {}});
+    }
+    const puuid = account_info.puuid;
+    const summoner_info = await get_summoner_info(puuid);
 
-const axios = require('axios');
+    if(summoner_info == {})
+    {
+        res.json({response_code: 404, data: {}});
+    }
+    const summoner_lvl = summoner_info.summonerLevel;
+    const profile_icon_id = summoner_info.profileIconId;
+    const ranked_info = await get_summoner_rank_info(puuid);
+    for(let i = 0; i < ranked_info.length; i++)
+    {
+    if (ranked_info[i].queueType == "RANKED_SOLO_5x5")
+    {
+      sq_rank = (ranked_info[i].tier).concat(" ",ranked_info[i].rank);
+    }
+    else if(ranked_info[i].queueType == "RANKED_FLEX_SR")
+    {
+      f_rank = (ranked_info[i].tier).concat(" ",ranked_info[i].rank);
+    }
+    }
+    res.json({response_code: 200, data:{
+                                       user_id: puuid,
+                                       name: riot_full_id,
+                                       soloq_rank: sq_rank,
+                                       flex_rank: f_rank,
+                                       games: [],
+                                       summoner_level: summoner_lvl,
+                                       profile_icon_id: profile_icon_id,
+                                        }});
+};
 
-const api_key = process.env.API_KEY;
 
 async function get_riot_account_info(RiotId, Tag){
     var res;
@@ -25,7 +64,7 @@ async function get_riot_account_info(RiotId, Tag){
             } else {
             console.log('Error', error.message);
             }
-            res = error;
+            res = {};
     });
     return res;
 }
@@ -53,10 +92,6 @@ async function get_summoner_info(Puuid){
                 res = error
         });
     return res;
-}
-
-async function get_summoner_region(Puuid){
-    //TODO: implement
 }
 
 async function get_summoner_rank_info(Puuid, region="euw1"){
@@ -213,14 +248,3 @@ async function get_riot_account_info_by_puuid(puuid){
     });
     return res;
 }
-
-module.exports = {
-    get_summoner_rank_info,
-    get_summoner_info,
-    get_riot_account_info,
-    get_summoner_region,
-    get_games_id,
-    get_game_info,
-    get_free_champions,
-    get_leaderboard,
-    get_riot_account_info_by_puuid}
