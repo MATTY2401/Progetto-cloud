@@ -2,7 +2,7 @@ const cron = require('cron');
 const Free_champion = require('../models/free_champion')
 const apiServer = require('../middleware/apiServer')
 
-const job = cron.CronJob.from({
+const FreeChampjob = cron.CronJob.from({
         cronTime: '0 12 * * TUE', //execute this job every tuesday at 12
         onTick: update_free_champions,
         start: true,
@@ -30,8 +30,16 @@ exports.champion_rotation = async (req, res, next) => {
 
 async function update_free_champions() {
     console.log('updating free champion rotation');
+    const champion_date = await Free_champion.query().select('created_at');
+    console.log(champion_date[0].created_at);
+    const date = new Date(champion_date[0].created_at);
+    const nowDate = new Date();
+    const difference = nowDate - date;
+    const days = (difference / (1000 * 3600 * 24)).toFixed(0);
+    console.log(`Time difference is: ${days}`);
     /*
     const champion_list = await apiServer.get_free_champions();
+    
     //delete the table
     console.log(champion_list.freeChampionIds);
     console.log('deleting old champs');

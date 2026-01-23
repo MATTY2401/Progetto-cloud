@@ -73,6 +73,8 @@ services:
       context: ./apis
     networks:
       - backend
+    depends_on:
+      - redis
 
   redis:
     build: 

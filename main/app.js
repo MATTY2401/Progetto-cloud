@@ -3,7 +3,7 @@ const express = require('express');
 
 const dbSetup = require('./db/db-setup');
 
-const summonerRouter = require("./routes/summoners");
+const apiRouter = require("./routes/api");
 const authRouter = require("./routes/auth");
 
 dbSetup();
@@ -11,7 +11,7 @@ dbSetup();
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use('/summoner', summonerRouter);
+app.use('/api', apiRouter);
 app.use('/auth', authRouter);
 
 app.get('/', (req, res) => {

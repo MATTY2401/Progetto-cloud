@@ -3,7 +3,7 @@ const Helper = require('./helper/helper')
 const apiServer = require('../middleware/apiServer')
 
 
-// Display Summoner page for a specific Author.
+//Sends information for a specific summoner.
 exports.summoner_detail = async (req, res, next) => {
     const RiotId = req.params.RiotId;
     const Tag = req.params.Tag;
@@ -22,8 +22,17 @@ exports.summoner_detail = async (req, res, next) => {
     summoner = summoner[0].to_JSON();
     console.log(summoner);
     res.json({response_code: 200, data: summoner});
-
 };
+
+exports.summoner_update = async (req, res, next) => {
+  
+  const RiotId = req.params.RiotId;
+  const Tag = req.params.Tag;
+  var summoner = await summoner_patch(RiotId, Tag);
+  summoner = summoner.to_JSON();
+  console.log(summoner);
+  res.json({response_code: 200, data: summoner});
+}
 
 exports.summoner_leaderboard = async (req, res, next) => {
   const type = req.params.type;
@@ -62,28 +71,7 @@ exports.summoner_leaderboard = async (req, res, next) => {
   res.json({response_code: 200, data: response});
 }
 
-
-// Display Summoner create form on GET.
-exports.summoner_create_get = async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Summoner create GET");
-};
-
-exports.summoner_create_post = async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Summoner create GET");
-};
-
-// Display Summoner delete form on GET.
-exports.summoner_delete_get = async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Summoner delete GET");
-};
-
-// Handle Summoner delete on POST.
-exports.summoner_delete_post = async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Summoner delete POST");
-};
-
 summoner_create = async (RiotId, Tag) => {
-  //api call
   console.log("calling riot account api");
   const riot_account_info = await apiServer.get_riot_account_info(RiotId, Tag);
   const puuid = riot_account_info.puuid;
@@ -122,11 +110,16 @@ summoner_create = async (RiotId, Tag) => {
   return summoner;
 };
 
-summoner_create_by_puuid = async (puuid) => {
-  //api call
-  const summoner_info = await apiServer.get_summoner_info_by_puuid(puuid);
+summoner_patch = async (RiotId, Tag) =>{
+  console.log("calling riot account api");
+  const riot_account_info = await apiServer.get_riot_account_info(RiotId, Tag);
+  const puuid = riot_account_info.puuid;
+  const riot_full_id = RiotId.concat("#",Tag);
+  console.log("calling riot summoner info");
+  const summoner_info = await apiServer.get_summoner_info(puuid);
   const summoner_lvl = summoner_info.summonerLevel;
   const profile_icon_id = summoner_info.profileIconId;
+  console.log("calling summoner rank info");
   const ranked_info = await apiServer.get_summoner_rank_info(puuid);
   var sq_rank = 'unranked';
   var f_rank = 'unranked';
@@ -142,16 +135,14 @@ summoner_create_by_puuid = async (puuid) => {
       f_rank = (ranked_info[i].tier).concat(" ",ranked_info[i].rank);
     }
   }
-  console.log("Inserting into database")
+  console.log("Updating database")
   const summoner = await Summoner.query()
-                        .insert({
-                          user_id: puuid,
+                        .patchAndFetchById(puuid,{
                           nome: riot_full_id,
                           soloq_rank: sq_rank,
                           flex_rank: f_rank,
-                          games: [],
                           summoner_level: summoner_lvl,
                           profile_icon_id: profile_icon_id,
-                        }).returning('*');
+                        });
   return summoner;
-};
+}
