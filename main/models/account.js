@@ -5,6 +5,10 @@ class Account extends Model {
     {
         return 'accounts';
     }
+    static get idColumn()
+    {
+        return 'email';
+    }
 }
 
 

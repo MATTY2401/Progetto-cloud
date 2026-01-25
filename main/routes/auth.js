@@ -6,7 +6,25 @@ const client = new OAuth2Client();
 
 
 router.get('/tokenverify/:token', async (req, res) => {
-    result = await verify(req.token);
+  const result = await verify(req.token);
+
+  if (result == 404)
+  {
+    res.json({response_code: 200, data: 'create_account'})
+  }
+  else if (result == 206 )
+  {
+    res.json({response_code: 200, data: 'fuse_account'})
+  }
+  else if (result == 200)
+  {
+    res.json({response_code: 200, data: 'login_ok'})
+  }
+  else
+  {
+    res.json({response_code: 500, data: {}})
+  }
+
 });
 
 async function verify(token) {
@@ -17,13 +35,29 @@ async function verify(token) {
   const payload = ticket.getPayload();
   // This ID is unique to each Google Account, making it suitable for use as a primary key
   // during account lookup. Email is not a good choice because it can be changed by the user.
-  const userid = payload['sub'];
+  const userid = payload.sub;
+  const email = payload.email;
+
+  const name = payload.given_name;
+  const last_name = payload.family_name;
 
   //do look up of the user if not present create it
-  const account = await Account.account_is_present(userid, email);
+  const account = await Account.get_account(userid, email);
   if(account == undefined)
   {
-    //create account
+    //ask for password and user name
+    return 404;
+  }
+  else{
+    const id = account.google_id
+    if(id == undefined)
+    {
+      return 206
+    }
+    else
+    {
+      return 200
+    }
   }
   
 }

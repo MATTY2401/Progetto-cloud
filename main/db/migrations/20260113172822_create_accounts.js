@@ -7,11 +7,10 @@ exports.up = function(knex) {
     {
         return knex.schema.createTable('accounts', (table) => {
             table.text('username').notNullable();
-            table.text('name').notNullable();
-            table.text('last_name').notNullable();
-            table.text('email').notNullable();
-            table.text('google_id').unique().primary();
-            table.text('access_token').unique().notNullable();
+            table.text('name');
+            table.text('last_name');
+            table.text('email').notNullable().unique().primary();
+            table.text('google_id').unique();
             table.timestamps(true,true);
         })
     }
