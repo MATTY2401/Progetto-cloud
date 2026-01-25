@@ -21,8 +21,7 @@ exports.account_create_post = async (req, res, next) => {
                                           email: email,
                                           google_id: google_id,
   })
-
-  res.json({});
+  res.json({respone_code:203, data:{}});
 };
 
 

@@ -7,7 +7,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     env_file:
-      - ./pgadmin/.env
+      - ./postgres/.env
     ports:
       - 5432:5432
     networks:
