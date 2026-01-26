@@ -5,9 +5,13 @@ const summoner_controller = require('../controllers/summonerController');
 const free_champion_controller = require('../controllers/free_championController');
 const account_controller = require('../controllers/accountController');
 
-router.post("/account/create", account_controller.account_create_post);
+router.post("/register", account_controller.account_create);
 
-router.post("/account/delete", account_controller.account_delete_post);
+router.post('/login', account_controller.account_login);
+
+router.delete("/delete", account_controller.account_delete);
+
+router.patch("/account", account_controller.account_patch);
 
 router.get("/summoner/leaderboard", summoner_controller.summoner_leaderboard);
 
