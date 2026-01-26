@@ -16,7 +16,7 @@ exports.account_detail = async (req, res, next) => {
 
 // Handle Summoner create on CREATE.
 exports.account_create = async (req, res, next) => {
-  
+
   const req_body = req.body;
   console.log(req_body);
   const username = req_body.username;
@@ -113,10 +113,33 @@ exports.account_login = async (req, res, next) => {
 // Handle Summoner update on PATCH.
 exports.account_patch = async (req, res, next) => {
   const req_body = req.body;
-  const email = req_body.email;
-  const auth_token = req_body.auth_token;
-  const google_id = req_body.google_id;
-  const userExist = await Account.query().findById({email: email}).where({auth_token: auth_token});
+  const token = req_body.token;
+  var query = {}
+  if(req_body.username)
+  {
+    query.username = req_body.username
+  }
+  if(req_body.password)
+  {
+    const passhash = await bcrypt.hash(req_body.password, 10);
+    query.password = passhash;
+  }
+  try {
+    var decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if(query == {})
+    {
+      res.status(400).json({message: 'Nothing to update'});
+    }
+    const affectedRows = await Account.query().findById(decoded.email).patch(decoded.email,query);
+    console.log(affectedRows);
+    if(affectedRows == 0)
+    {
+      res.status(400).json({message: "User Don't exists"});
+    }
+    res.status(200).json({message: 'Account Updated'});
+  } catch(err) {
+    res.status(500).json({message: 'Server Error'});
+  }
 
 
 }
@@ -128,6 +151,7 @@ exports.account_delete = async (req, res, next) => {
   try {
     var decoded = jwt.verify(token, process.env.JWT_SECRET);
     await Account.query().deleteById(decoded.email);
+    res.status(200).json({message: 'Account deleted'});
   } catch(err) {
     res.status(500).json({message: 'Server Error'});
   }
@@ -147,8 +171,8 @@ async function verify(token) {
   // This ID is unique to each Google Account, making it suitable for use as a primary key
   // during account lookup. Email is not a good choice because it can be changed by the user.
   const google_id = payload.sub;
+  
   const email = payload.email;
-
   const name = payload.given_name;
   const last_name = payload.family_name;
 
