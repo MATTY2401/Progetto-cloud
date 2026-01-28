@@ -17,11 +17,6 @@ const FreeChampjob = cron.CronJob.from({
 
 
 exports.champion_rotation = async (req, res, next) => {
-    //put a check for the week
-    /*
-        probably better to take first entry of the table check the creation date and if the
-        next tuesday has been found update and return otherwise just return the id of all the entries
-    */
     const champion_list = await Free_champion.query().select('champion_id');
     var champion_array = [];
     champion_list.forEach(champion => {

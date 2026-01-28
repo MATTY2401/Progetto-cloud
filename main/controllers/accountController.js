@@ -18,7 +18,6 @@ exports.account_detail = async (req, res, next) => {
 exports.account_create = async (req, res, next) => {
 
   const req_body = req.body;
-  console.log(req_body);
   const username = req_body.username;
   const email = req_body.email;
   const first_name = req_body.first_name;

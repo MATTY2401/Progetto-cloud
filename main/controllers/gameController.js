@@ -1,37 +1,37 @@
 const Game = require('../models/game')
 const apiServer = require('../middleware/apiServer')
 
-// Display Game page for a specific Author.
-exports.game_detail = async (req, res, next) => {
-  res.send(`NOT IMPLEMENTED: Game detail: ${req.params.id}`);
-};
-
-// Display Game create form on GET.
-exports.game_create_get = async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Game create GET");
-};
-
-// Handle Game create on POST.
-exports.game_create_post = async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Game create POST");
-};
-
-// Display Game delete form on GET.
-exports.game_delete_get = async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Game delete GET");
-};
-
-// Handle Game delete on POST.
-exports.game_delete_post = async (req, res, next) => {
-  res.send("NOT IMPLEMENTED: Game delete POST");
-};
-
 exports.create_10_latest_games = async (Puuid) => {
   const games_array = await apiServer.get_games_id(Puuid);
-  await Promise.all(games_array.map(async (game) => {
+  const games_existing = await Game.query().findByIds(games_array);
+  const games_to_insert = games_array.filter(x => !games_existing.includes(x));
+  await Promise.all(games_to_insert.map(async (game) => {
     await game_create(game);
   }))
   return games_array
+}
+
+exports.get_game_details = async (game_id) => {
+  var game = await Game.query().findById(game_id);
+  if(!game)
+  {
+    game = await game_create(game);
+  }
+  return game;
+}
+
+exports.get_games_details = async (game_ids) => {
+  var games_existing = await Game.query().findByIds(game_ids);
+  const games_to_get = games_ids.filter(x => !games_existing.includes(x));
+  if(games_to_get.length > 0)
+  {
+    await Promise.all(games_to_get.map(async (game) => {
+      game = await game_create(game);
+      games_existing.push(game);
+    }))
+  }
+  return games_existing;
+
 }
 
 game_create = async (game_id) => {
@@ -51,18 +51,27 @@ game_create = async (game_id) => {
     let team1 = [];
     let team2 = [];
     game_info.info.participants.forEach(player => {
+      
+      player_info = {};
+      player_info.championName = player.championName;
+      player_info.championId = player.championId;
+      const riotName = player.riotIdGameName;
+      const riotTag = player.riotIdTagline;
+      const riotId = riotName.concat("#",riotTag);
+      player_info.playerId = riotId;
+
+
       if(player.teamId == 100)
       {
-        //maybe use name+riotid so you can search them, probably better
-        team1.push(player.puuid)
+        team1.push(player_info);
       }
       else    
       {
-        team2.push(player.puuid)
+        team2.push(player_info);
       }
     })
     
-    await Game.query().insert(
+    return await Game.query().insert(
                   {
                     game_id: game_id,
                     gamemode: gamemode,

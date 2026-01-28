@@ -67,38 +67,6 @@ services:
       - backend
     deploy:
       replicas: 5
-
-  api:
-    build: 
-      context: ./apis
-    networks:
-      - backend
-    depends_on:
-      - redis
-
-  redis:
-    build: 
-      context: ./redis
-    volumes:
-      - redis-data:/data
-    ports:
-      - 6379:6379
-    env_file:
-      - ./redis/.env
-    networks:
-      - backend
-      - redis
-
-  redis_commander:
-    build: 
-      context: ./redis_commander
-    environment:
-    - REDIS_HOST=redis
-    - REDIS_PASSWORD=redis
-    ports:
-    - 8081:8081
-    networks:
-      - redis
     
 networks:
   database:
@@ -111,9 +79,6 @@ networks:
     driver: bridge
 
   backend:
-    driver: bridge
-
-  redis:
     driver: bridge
 
 volumes:

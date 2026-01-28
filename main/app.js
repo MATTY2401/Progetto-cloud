@@ -4,7 +4,6 @@ const express = require('express');
 const dbSetup = require('./db/db-setup');
 
 const apiRouter = require("./routes/api");
-const authRouter = require("./routes/auth");
 
 dbSetup();
 
@@ -13,7 +12,6 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json())
 app.use('/api', apiRouter);
-app.use('/auth', authRouter);
 
 app.get('/', (req, res) => {
   res.send("home page")

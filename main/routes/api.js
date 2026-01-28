@@ -19,6 +19,9 @@ router.get("/summoner/leaderboard", summoner_controller.summoner_leaderboard);
 //top 200 player of specified league
 router.get('/summoner/leaderboard/:type', summoner_controller.summoner_leaderboard);
 
+//update summoner info from riot servers
+router.patch('/summoner',summoner_controller.summoner_update);
+
 //search player info
 router.get("/summoner/:RiotId/:Tag", summoner_controller.summoner_detail);
 
