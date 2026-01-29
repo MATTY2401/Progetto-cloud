@@ -164,8 +164,14 @@ exports.get_profile_icon = async (req, res, next) => {
   try {
     var decoded = jwt.verify(token, process.env.JWT_SECRET);
     const image = await Account.query().select('profile_image').findById(decoded.email);
-    const image_data = image.profile_image
-    res.status(200).contentType('image/jpeg').send(image_data);
+    console.log(image.profile_image);
+    if(image.profile_image)
+    {
+      res.status(200).contentType('image/jpeg').send(image.profile_image);
+    }
+    else{
+      res.status(404).json({message: 'Image not found'});
+    }
   } catch (error) {
     console.log(error)
     res.status(500).json({message: 'Server Error'});
