@@ -14,6 +14,12 @@ router.patch("/account", account_controller.account_patch);
 
 router.delete("/account/delete", account_controller.account_delete);
 
+//get profile image
+router.get("/account/image", account_controller.get_profile_icon);
+
+//update profile image
+router.patch("/account/image", account_controller.update_profile_icon);
+
 //top 20 solo q player
 router.get("/summoner/leaderboard", cache_controller.summoner_leaderboard);
 
@@ -25,5 +31,6 @@ router.get("/summoner/:RiotId/:Tag", summoner_controller.summoner_detail);
 
 //give free champions
 router.get("/champion/free-rotation", free_champion_controller.champion_rotation);
+
 
 module.exports = router;

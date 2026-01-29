@@ -11,6 +11,11 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json())
+app.use(express.raw({
+  type: ['image/png', 'image/jpg', 'image/jpeg', 'image/*'],
+  limit: '5mb'
+}))
+
 app.use('/api', apiRouter);
 
 app.get('/', (req, res) => {

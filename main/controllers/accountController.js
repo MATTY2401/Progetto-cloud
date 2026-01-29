@@ -157,19 +157,36 @@ exports.account_delete = async (req, res, next) => {
     
 };
 
-// Handle Profile Icons request with a POST
+// Handle Profile Icons request with a GET
 exports.get_profile_icon = async (req, res, next) => {
-  const req_body = req.body;
-  const jwt_token = req_body.jwt_token;
+  const req_header = req.headers
+  const token = req_header.authorization
   try {
     var decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const image = Account.query().findById(decoded.email).select('profile_image');
-    res.status(200).json({message: 'Image found' , image: image});
+    const image = await Account.query().select('profile_image').findById(decoded.email);
+    const image_data = image.profile_image
+    res.status(200).contentType('image/jpeg').send(image_data);
   } catch (error) {
+    console.log(error)
     res.status(500).json({message: 'Server Error'});
   }
 }
 
+exports.update_profile_icon = async (req, res, next) => {
+  const req_body = req.body;
+  const image = req_body;
+  const req_header = req.headers
+  const token = req_header.authorization
+  console.log(image);
+  try {
+    var decoded = jwt.verify(token, process.env.JWT_SECRET);
+    await Account.query().findById(decoded.email).patch({profile_image: image});
+    res.status(200).json({message: 'Image updated'});
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({message: 'Server Error'});
+  }
+}
 
 exports.get_account = async (email) => {
   return await Account.query().findById(email);
