@@ -1,6 +1,7 @@
 const Summoner = require('../models/summoner')
 const Helper = require('./helper/helper')
-const apiServer = require('../middleware/apiServer')
+const apiServer = require('../middleware/apiServer');
+const Account = require('../models/account');
 
 
 //Sends information for a specific summoner.
@@ -44,57 +45,6 @@ exports.summoner_update = async (req, res, next) => {
     res.status(500).json({message:"Internal Server Error"});
   }
 }
-
-exports.summoner_leaderboard = async (req, res, next) => {
-  const type = req.params.type;
-  console.log(`value of type is : ${type}`);
-  var queue;
-  if(!type)
-  {
-    queue = "RANKED_SOLO_5x5";
-  }
-  else
-  {
-    switch (type) 
-    {
-      case "soloq":
-        queue = "RANKED_SOLO_5x5";
-        break;
-      case "flex":
-        queue = "RANKED_FLEX_SR";
-        break;
-      default:
-        queue = "NOT_FOUND";
-        break;
-    }
-  }
-  if (queue == "NOT_FOUND")
-  {
-    res.status(404).json({message:'Queue Type Not Found'});
-  }
-
-  try
-  {
-    const leaderboard = await apiServer.get_leaderboard(queue);
-    const top20leaderboard = leaderboard.entries.slice(0,20);
-    var response = [];
-    await Promise.all(top20leaderboard.map(async (entry) => {
-      const riot_account_info = await apiServer.get_riot_account_info_by_puuid(entry.puuid);
-      response.push({name: riot_account_info.gameName.concat('#', riot_account_info.tagLine),puuid: entry.puuid});
-    }))
-
-    response.map((elem) => {
-      index = top20leaderboard.findIndex(elem.puuid);
-      top20leaderboard[index] = elem.name
-    })
-
-    res.status(200).json({leaderboard: top50leaderboard});
-  }catch(err){
-    console.log(err);
-    res.status(500).json({message:'Internal Server Error', leaderboard: response});
-  }
-}
-
 
 summoner_create = async (RiotId, Tag) => {
   try{
