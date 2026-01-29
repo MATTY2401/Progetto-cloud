@@ -4,6 +4,7 @@ const router = express.Router();
 const summoner_controller = require('../controllers/summonerController');
 const free_champion_controller = require('../controllers/free_championController');
 const account_controller = require('../controllers/accountController');
+const cache_controller = require('../controllers/cacheController');
 
 router.post("/register", account_controller.account_create);
 
@@ -13,11 +14,8 @@ router.patch("/account", account_controller.account_patch);
 
 router.delete("/account/delete", account_controller.account_delete);
 
-//top 200 solo q player
-router.get("/summoner/leaderboard", summoner_controller.summoner_leaderboard);
-
-//top 200 player of specified league
-router.get('/summoner/leaderboard/:type', summoner_controller.summoner_leaderboard);
+//top 20 solo q player
+router.get("/summoner/leaderboard", cache_controller.summoner_leaderboard);
 
 //update summoner info from riot servers
 router.patch('/summoner',summoner_controller.summoner_update);

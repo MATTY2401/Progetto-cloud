@@ -157,9 +157,24 @@ exports.account_delete = async (req, res, next) => {
     
 };
 
+// Handle Profile Icons request with a POST
+exports.get_profile_icon = async (req, res, next) => {
+  const req_body = req.body;
+  const jwt_token = req_body.jwt_token;
+  try {
+    var decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const image = Account.query().findById(decoded.email).select('profile_image');
+    res.status(200).json({message: 'Image found' , image: image});
+  } catch (error) {
+    res.status(500).json({message: 'Server Error'});
+  }
+}
+
+
 exports.get_account = async (email) => {
   return await Account.query().findById(email);
 };
+
 
 async function verify(token) {
   const ticket = await client.verifyIdToken({
@@ -194,3 +209,5 @@ async function verify(token) {
   }
   
 }
+
+
