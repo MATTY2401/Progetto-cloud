@@ -70,18 +70,18 @@ exports.account_login = async (req, res, next) => {
   {
       const result = await verify(token);
 
-      if (result == {})
+      if (result === undefined)
       {
         res.status(200).json({message: 'create_account'})
       }
-      else if (result.google_id)
+      else if (result.google_id === undefined)
       {
         res.status(200).json({message: 'fuse_account'})
       }
       else
       { 
         const token = jwt.sign({ email: result.email, google_id: result.google_id }, process.env.JWT_SECRET, { expiresIn: '12h' });
-        res.status(200).json({data: {message: 'login_ok', token: token} })
+        res.status(200).json({message: 'login_ok', token: token})
       }
   }
   else
@@ -202,7 +202,7 @@ exports.get_account = async (email) => {
 async function verify(token) {
   const ticket = await client.verifyIdToken({
       idToken: token,
-      audience: "887270428298-qfflgl199gh8crne8jqlvfkimoqceiqd.apps.googleusercontent.com",  // Specify the WEB_CLIENT_ID of the app that accesses the backend
+      audience: "887270428298-g7ook4kj6hb33egp9s7te9lau92kppdv.apps.googleusercontent.com",  // Specify the WEB_CLIENT_ID of the app that accesses the backend
   });
   const payload = ticket.getPayload();
   // This ID is unique to each Google Account, making it suitable for use as a primary key
@@ -214,14 +214,15 @@ async function verify(token) {
   const last_name = payload.family_name;
 
   //do look up of the user if not present create it
-  const account = await Account.get_account(email);
-  if(account)
+  const account = await Account.query().findById(email);
+  console.log(account)
+  if(account === undefined)
   {
-    return {}
+    return undefined
   }
   else{
     const id = account.google_id
-    if(id)
+    if(id === undefined)
     {
       return {email: email, google_id: undefined};
     }
