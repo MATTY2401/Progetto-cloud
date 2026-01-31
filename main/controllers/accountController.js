@@ -8,6 +8,15 @@ const Uuid = require('uuid');
 const {OAuth2Client} = require('google-auth-library');
 const { response } = require('express');
 const client = new OAuth2Client();
+const { v4: uuidv4 } = require("uuid");
+
+const { Storage } = require('@google-cloud/storage');
+const storage = new Storage({
+  keyFilename: './key.json',
+  projectId: 'progetto-cloud-1939439',
+});
+
+const cdn = storage.bucket('lolbile-cdn');
 
 // Display Summoner page for a specific Author.
 exports.account_detail = async (req, res, next) => {
@@ -31,7 +40,7 @@ exports.account_create = async (req, res, next) => {
       return res.status(400).json({message: 'All fields are required'});
     }
     
-    const userExist = await Account.query().findById({email: email});
+    const userExist = await Account.query().findById(email);
     if(userExist)
     {
       return res.status(400).json({message: 'User already exists'});
@@ -60,29 +69,43 @@ exports.account_create = async (req, res, next) => {
   }
 };
 
+exports.account_create_google_id = async (google_id, email, name, last_name) => 
+{
+  const username = name.concat(" ",last_name);
+  try {
+    return await Account.query().insert({
+                                          username: username,
+                                          name: name,
+                                          last_name: last_name,
+                                          email: email,
+                                          google_id: google_id,
+      })
+    }catch(err){
+      console.log(err);
+    }
+}
+
+
 exports.account_login = async (req, res, next) => {
   const req_body = req.body;
   const email = req_body.email;
   const token = req_body.token;
   const password = req_body.password;
-
   if(token)
   {
-      const result = await verify(token);
+    const result = await verify(token);
+    if (result.exists == 0)
+    {
+      var account = this.account_create_google_id(result.google_id, result.email, result.name, result.last_name)
 
-      if (result === undefined)
-      {
-        res.status(200).json({message: 'create_account'})
-      }
-      else if (result.google_id === undefined)
-      {
-        res.status(200).json({message: 'fuse_account'})
-      }
-      else
-      { 
-        const token = jwt.sign({ email: result.email, google_id: result.google_id }, process.env.JWT_SECRET, { expiresIn: '12h' });
-        res.status(200).json({message: 'login_ok', token: token})
-      }
+    }
+    else
+    {
+      var account = this.get_account(result.email);
+    }
+    const jwt_token = jwt.sign({ email: result.email, google_id: result.google_id }, process.env.JWT_SECRET, { expiresIn: '12h' });
+    res.status(200).json({message: 'login_ok', token: jwt_token, username: account.username})
+
   }
   else
   {
@@ -99,7 +122,7 @@ exports.account_login = async (req, res, next) => {
         return res.status(400).json({message: 'Invalid Credentials'});
       }
       const token = jwt.sign({ email: user.email, google_id: user.google_id }, process.env.JWT_SECRET, { expiresIn: '12h' });
-      res.status(200).json({data: {message: 'login_ok', token: token} })
+      res.status(200).json({message: 'login_ok', token: token, username: user.username})
     }
     catch(err)
     {
@@ -149,6 +172,10 @@ exports.account_delete = async (req, res, next) => {
   const token = req_body.token;
   try {
     var decoded = jwt.verify(token, process.env.JWT_SECRET);
+    var account = await Account.query().findById(decoded.email);
+    const todelete = `${account.profile_image}`;
+    const file_todelete = cdn.file(todelete);
+    await file_todelete.delete({ignoreNotFound: true});
     await Account.query().deleteById(decoded.email);
     res.status(200).json({message: 'Account deleted'});
   } catch(err) {
@@ -164,10 +191,11 @@ exports.get_profile_icon = async (req, res, next) => {
   try {
     var decoded = jwt.verify(token, process.env.JWT_SECRET);
     const image = await Account.query().select('profile_image').findById(decoded.email);
+    
     console.log(image.profile_image);
     if(image.profile_image)
     {
-      res.status(200).contentType('image/jpeg').send(image.profile_image);
+      res.status(200).json({image: image.profile_image})
     }
     else{
       res.status(404).json({message: 'Image not found'});
@@ -183,10 +211,20 @@ exports.update_profile_icon = async (req, res, next) => {
   const image = req_body;
   const req_header = req.headers
   const token = req_header.authorization
-  console.log(image);
   try {
     var decoded = jwt.verify(token, process.env.JWT_SECRET);
-    await Account.query().findById(decoded.email).patch({profile_image: image});
+    var account = await Account.query().findById(decoded.email)
+    if (account === undefined)
+    {
+      res.status(400).json({message: 'Bad Request'});
+    }
+    const todelete = `${account.profile_image}`;
+    const file_todelete = cdn.file(todelete);
+    await file_todelete.delete({ignoreNotFound: true});
+    const filename = `${uuidv4()}.jpeg`
+    const file = cdn.file(filename);
+    await file.save(image);
+    await Account.query().findById(decoded.email).patch({profile_image: `${filename}`});
     res.status(200).json({message: 'Image updated'});
   } catch (error) {
     console.log(error)
@@ -215,22 +253,15 @@ async function verify(token) {
 
   //do look up of the user if not present create it
   const account = await Account.query().findById(email);
-  console.log(account)
   if(account === undefined)
   {
-    return undefined
+    return {email: email, google_id: google_id, name: name, last_name: last_name, exists: 0 }
   }
-  else{
-    const id = account.google_id
-    if(id === undefined)
-    {
-      return {email: email, google_id: undefined};
-    }
-    else
-    {
-      return {email: email, google_id: google_id, name: name, last_name: last_name};
-    }
+  else
+  {
+    return {email: email, google_id: google_id, name: name, last_name: last_name, exists: 1 }
   }
+  
   
 }
 

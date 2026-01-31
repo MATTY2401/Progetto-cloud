@@ -11,7 +11,7 @@ exports.up = function(knex) {
             table.text('last_name');
             table.text('email').notNullable().unique().primary();
             table.text('google_id').unique();
-            table.text('password').notNullable();
+            table.text('password');
             table.timestamps(true,true);
         })
     }

@@ -4,7 +4,7 @@
  */
 exports.up = async function(knex) {
     await knex.schema.alterTable('accounts', (table) => {
-        table.binary('profile_image');
+        table.text('profile_image');
     });
 };
 

@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/MATTY2401/Progetto-cloud#readme",
   "dependencies": {
+    "@google-cloud/storage": "^7.12.0",
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "cron": "^4.4.0",
