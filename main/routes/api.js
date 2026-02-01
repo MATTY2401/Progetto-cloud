@@ -5,6 +5,7 @@ const summoner_controller = require('../controllers/summonerController');
 const free_champion_controller = require('../controllers/free_championController');
 const account_controller = require('../controllers/accountController');
 const cache_controller = require('../controllers/cacheController');
+const game_controller = require('../controllers/gameController')
 
 router.post("/register", account_controller.account_create);
 
@@ -13,6 +14,8 @@ router.post('/login', account_controller.account_login);
 router.patch("/account", account_controller.account_patch);
 
 router.delete("/account/delete", account_controller.account_delete);
+
+router.post("/game/info", game_controller.get_games_info)
 
 //get profile image
 router.get("/account/image", account_controller.get_profile_icon);

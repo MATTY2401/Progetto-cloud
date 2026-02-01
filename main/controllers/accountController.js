@@ -122,7 +122,12 @@ exports.account_login = async (req, res, next) => {
         return res.status(400).json({message: 'Invalid Credentials'});
       }
       const token = jwt.sign({ email: user.email, google_id: user.google_id }, process.env.JWT_SECRET, { expiresIn: '12h' });
-      res.status(200).json({message: 'login_ok', token: token, username: user.username})
+      var image = null
+      if(user.profile_image)
+      {
+        image = user.profile_image
+      }
+      res.status(200).json({message: 'login_ok', token: token, username: user.username, image: image})
     }
     catch(err)
     {

@@ -33,7 +33,7 @@ async function get_free_champions() {
 async function get_games_id(puuid) {
     // check if there is a new version.json entry 
     var res
-    var url = `https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=10`
+    var url = `https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?queue=400&type=normal&start=0&count=10`
     await axios.get(url, {headers: {'X-Riot-Token': api_key }})
         .then(response => {
             if(response.status == 200) {

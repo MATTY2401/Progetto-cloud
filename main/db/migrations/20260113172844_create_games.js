@@ -10,7 +10,7 @@ exports.up = function(knex) {
             table.text('gamemode').notNullable();
             table.specificType('team_1', 'text ARRAY').notNullable();
             table.specificType('team_2', 'text ARRAY').notNullable();
-            table.date('date').notNullable();
+            table.dateTime('date', {useTz:false}).notNullable();
             table.boolean('winner');
             table.timestamps(true,true);
         })

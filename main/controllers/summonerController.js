@@ -6,8 +6,8 @@ const Account = require('../models/account');
 
 //Sends information for a specific summoner.
 exports.summoner_detail = async (req, res, next) => {
-    const RiotId = req.params.RiotId;
-    const Tag = req.params.Tag;
+    const RiotId = req.params.RiotId.toLowerCase();
+    const Tag = req.params.Tag.toLowerCase();
     const fullRiotId = RiotId.concat("#",Tag);
     try{
       var summoner = await Summoner.query()
@@ -18,9 +18,14 @@ exports.summoner_detail = async (req, res, next) => {
           summoner = await summoner_create(RiotId, Tag);
           var games_array = await Helper.add_games_helper(summoner.user_id)
           summoner = await Summoner.query().findByIds(summoner.user_id).patch({games: games_array}).returning('*');
+          summoner = summoner[0].to_JSON();
           
       }
-      summoner = summoner[0].to_JSON();
+      else{
+        summoner = await summoner_patch(RiotId, Tag)
+        summoner = summoner.to_JSON()
+      }
+      
       console.log(summoner);
       res.status(200).json({summoner: summoner});
     }catch(err){
@@ -33,8 +38,8 @@ exports.summoner_update = async (req, res, next) => {
   
   const req_body = req.body;
 
-  const RiotId = req_body.RiotId;
-  const Tag = req_body.Tag;
+  const RiotId = req_body.RiotId.toLowerCase();
+  const Tag = req_body.Tag.toLowerCase();
   try{
     var summoner = await summoner_patch(RiotId, Tag);
     summoner = summoner.to_JSON();
