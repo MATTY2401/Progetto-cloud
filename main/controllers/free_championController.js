@@ -22,7 +22,7 @@ exports.champion_rotation = async (req, res, next) => {
     champion_list.forEach(champion => {
         champion_array.push(champion.champion_id);
     });
-    res.json({response_code: 200, data: champion_array});
+    res.status(200).json({champion_array: champion_array});
 
 };
 
@@ -35,6 +35,19 @@ async function update_free_champions() {
         console.log('Locked resource');
         console.log('updating free champion rotation');
         const champion_date = await Free_champion.query().select('created_at');
+        if(champion_date[0] === undefined)
+        {
+            const champion_list = await apiServer.get_free_champions();
+            if( champion_list == {})
+            {
+                return;
+            }
+            await Promise.all(champion_list.freeChampionIds.map(async (champion) => {
+            await Free_champion.query().insert({
+                champion_id: champion,
+            });
+        }))
+        }
         const date = new Date(champion_date[0].created_at);
         const nowDate = new Date();
         const difference = nowDate - date;

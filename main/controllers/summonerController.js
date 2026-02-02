@@ -16,6 +16,10 @@ exports.summoner_detail = async (req, res, next) => {
       {
           console.log('No such summoner');
           summoner = await summoner_create(RiotId, Tag);
+          if(summoner === undefined)
+          {
+            return res.status(404).json();
+          }
           var games_array = await Helper.add_games_helper(summoner.user_id)
           summoner = await Summoner.query().findByIds(summoner.user_id).patch({games: games_array}).returning('*');
           summoner = summoner[0].to_JSON();
@@ -23,6 +27,10 @@ exports.summoner_detail = async (req, res, next) => {
       }
       else{
         summoner = await summoner_patch(RiotId, Tag)
+        if(summoner === undefined)
+        {
+            return res.status(404).json();
+        }
         summoner = summoner.to_JSON()
       }
       
@@ -42,6 +50,10 @@ exports.summoner_update = async (req, res, next) => {
   const Tag = req_body.Tag.toLowerCase();
   try{
     var summoner = await summoner_patch(RiotId, Tag);
+    if(summoner === undefined)
+    {
+      return res.status(404).json();
+    }
     summoner = summoner.to_JSON();
     console.log(summoner);
     res.status(200).json({summoner: summoner});
@@ -55,10 +67,18 @@ summoner_create = async (RiotId, Tag) => {
   try{
     console.log("calling riot account api");
     const riot_account_info = await apiServer.get_riot_account_info(RiotId, Tag);
+    if(riot_account_info === undefined)
+    {
+      return undefined
+    }
     const puuid = riot_account_info.puuid;
     const riot_full_id = RiotId.concat("#",Tag);
     console.log("calling riot summoner info");
     const summoner_info = await apiServer.get_summoner_info(puuid);
+    if(summoner_info === undefined)
+    {
+      return undefined
+    }
     const summoner_lvl = summoner_info.summonerLevel;
     const profile_icon_id = summoner_info.profileIconId;
     console.log("calling summoner rank info");
@@ -101,10 +121,18 @@ summoner_create = async (RiotId, Tag) => {
     try{
       console.log("calling riot account api");
       const riot_account_info = await apiServer.get_riot_account_info(RiotId, Tag);
+      if(riot_account_info === undefined)
+      {
+        return undefined
+      }
       const puuid = riot_account_info.puuid;
       const riot_full_id = RiotId.concat("#",Tag);
       console.log("calling riot summoner info");
       const summoner_info = await apiServer.get_summoner_info(puuid);
+      if(summoner_info === undefined)
+      {
+        return undefined
+      }
       const summoner_lvl = summoner_info.summonerLevel;
       const profile_icon_id = summoner_info.profileIconId;
       console.log("calling summoner rank info");

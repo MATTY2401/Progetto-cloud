@@ -91,14 +91,29 @@ async function get_riot_account_info(RiotId, Tag) {
                 console.log('Successfully got riot account info');
                 res = response.data;
             }
+            else if(response.status == 404){
+                console.log('Account not found')
+                res = undefined
+            }
         })
         .catch(error => {
                 if (error.response) {
-                console.log(error.response.data);
-                console.log(error.response.status);
-                console.log(error.response.headers);
+                    console.log('error-response')
+                    console.log(error.response.data);
+                    if(error.response.data.status.status_code == 404)
+                    {
+                        console.log('Account not found')
+                        return res = undefined 
+                    }
+
                 } else if (error.request) {
-                console.log(error.request);
+                    console.log('error-request')
+                    console.log(error.request);
+                    if(error.request.status.status_code == 404)
+                    {
+                        console.log('Account not found')
+                        return res = undefined 
+                    }
                 } else {
                 console.log('Error', error.message);
                 }
@@ -144,11 +159,19 @@ async function get_summoner_info(puuid) {
         })
         .catch(error => {
                 if (error.response) {
-                console.log(error.response.data);
-                console.log(error.response.status);
-                console.log(error.response.headers);
+                    console.log(error.response.data);
+                    if(error.response.data.status.status_code == 404)
+                    {
+                        console.log('Account not found')
+                        return res = undefined 
+                    }
                 } else if (error.request) {
-                console.log(error.request);
+                    console.log(error.request);
+                    if(error.request.status.status_code == 404)
+                    {
+                        console.log('Account not found')
+                        return res = undefined 
+                    }
                 } else {
                 console.log('Error', error.message);
                 }
@@ -169,9 +192,12 @@ async function get_summoner_rank_info(puuid) {
         })
         .catch(error => {
                 if (error.response) {
-                console.log(error.response.data);
-                console.log(error.response.status);
-                console.log(error.response.headers);
+                    console.log(error.response.data);
+                    if(error.response.status == 404)
+                    {
+                        console.log('Account not found')
+                        return res = undefined 
+                    }
                 } else if (error.request) {
                 console.log(error.request);
                 } else {
