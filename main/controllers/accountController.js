@@ -141,27 +141,26 @@ exports.account_login = async (req, res, next) => {
 exports.account_patch = async (req, res, next) => {
   const req_body = req.body;
   const token = req_body.token;
-  var query = {}
   try {
     
     if(req_body.username)
     {
-      query.username = req_body.username
+      console.log("updating name")
       var decoded = jwt.verify(token, process.env.JWT_SECRET);
-      if(query == {})
-      {
-        res.status(400).json({message: 'Nothing to update'});
-      }
-      const affectedRows = await Account.query().findById(decoded.email).patch(decoded.email,query);
+      console.log(decoded.email)
+      const affectedRows = await Account.query().patch({username: req_body.username}).findById(decoded.email);
       console.log(affectedRows);
       if(affectedRows == 0)
       {
+        console.log("user doesn't exists")
         res.status(400).json({message: "User Don't exists"});
       }
+      console.log("name updated")
       res.status(200).json({message: 'Account Updated'});
     } 
   }
   catch(err) {
+    console.log(err)
     res.status(500).json({message: 'Server Error'});
   }
   
