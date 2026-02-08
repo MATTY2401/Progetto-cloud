@@ -13,10 +13,10 @@ const { v4: uuidv4 } = require("uuid");
 const { Storage } = require('@google-cloud/storage');
 const storage = new Storage({
   keyFilename: './key.json',
-  projectId: 'progetto-cloud-1939439',
+  projectId: 'lolbile-cloud-project',
 });
 
-const cdn = storage.bucket('lolbile-cdn');
+const cdn = storage.bucket('lolbile');
 
 // Display Summoner page for a specific Author.
 exports.account_detail = async (req, res, next) => {
@@ -242,7 +242,7 @@ exports.get_account = async (email) => {
 async function verify(token) {
   const ticket = await client.verifyIdToken({
       idToken: token,
-      audience: "887270428298-g7ook4kj6hb33egp9s7te9lau92kppdv.apps.googleusercontent.com",  // Specify the WEB_CLIENT_ID of the app that accesses the backend
+      audience: "673048260497-d692jh83icm9gsn8pnq2b2tfb130fr45.apps.googleusercontent.com",  // Specify the WEB_CLIENT_ID of the app that accesses the backend
   });
   const payload = ticket.getPayload();
   // This ID is unique to each Google Account, making it suitable for use as a primary key
