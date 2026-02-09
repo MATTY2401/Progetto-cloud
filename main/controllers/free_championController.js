@@ -1,19 +1,25 @@
 const cron = require('cron');
 const Free_champion = require('../models/free_champion')
 const CronLock = require('../models/cron_lock')
-const apiServer = require('../middleware/apiServer')
+const apiServer = require('../middleware/apiServer');
 
 const cronJobName = {
   CHECK_FREE_CHAMP: "CHECK_FREE_CHAMP",
 }
 
+
 const FreeChampjob = cron.CronJob.from({
         cronTime: '0 12 * * TUE', //execute this job every tuesday at 12
         onTick: update_free_champions,
-        start: true,
-        runOnInit: true,
+        start: false,
+        runOnInit: false,
         waitForCompletion: true
 });
+
+exports.startJob = () => {
+    FreeChampjob.start()
+    update_free_champions()
+}
 
 
 exports.champion_rotation = async (req, res, next) => {

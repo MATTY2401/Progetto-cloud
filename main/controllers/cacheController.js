@@ -12,6 +12,8 @@ exports.checkCache = async () => {
   const difference = current_timeStamp - timestamp;
   const day_diff =  (difference/ (1000 * 3600 * 24)).toFixed(0)
 
+  console.log(day_diff);
+
   if(day_diff > 0)
   {
     return true
@@ -32,7 +34,8 @@ exports.summoner_leaderboard = async (req, res, next) => {
   {
     try
     {
-        const leaderboard = await apiServer.get_leaderboard(queue);
+        await Cache.query().delete();
+        const leaderboard = await apiServer.get_leaderboard(queue);   
         const top20leaderboard = leaderboard.entries.slice(0,20);
         await Promise.all(top20leaderboard.map(async (entry) => {
             const riot_account_info = await apiServer.get_riot_account_info_by_puuid(entry.puuid);
@@ -42,6 +45,7 @@ exports.summoner_leaderboard = async (req, res, next) => {
                 lp: entry.leaguePoints
             })
         }))
+
 
         players = await Cache.query().select('nome','puuid','lp').orderBy('lp','desc','last');
         res.status(200).json({players: players});

@@ -28,7 +28,7 @@ exports.up = async function(knex) {
             $BODY$;
         `);
         // Assegnazione del proprietario (owner)
-        await knex.raw('ALTER FUNCTION check_ten_items(text[]) OWNER TO admin;');
+        await knex.raw('ALTER FUNCTION check_ten_items(text[]) OWNER TO postgres;');
     }
 };
 
